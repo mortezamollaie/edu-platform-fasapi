@@ -3,3 +3,5 @@ uvicorn
 pydantic
 sqlalchemy
 pydantic-settings
+passlib
+bcrypt
