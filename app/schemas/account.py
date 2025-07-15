@@ -17,8 +17,6 @@ class SignUpResponse(SignUp):
 
 
 class SendOtp(BaseModel):
-    first_name: constr(max_length=50)
-    last_name: constr(max_length=50)
     phone_number: str = Field(..., pattern=r'^09\d{9}$')
 
 

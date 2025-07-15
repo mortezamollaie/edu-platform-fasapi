@@ -7,47 +7,41 @@ from app.models.account import OtpCode
 from app.services.hash_password import Hash
 from datetime import datetime, timedelta
 from app.services.generate_token import create_access_token
+from app.crud import account as AccountCrud
 import random
 
 router = APIRouter()
 
 @router.post("/send-otp", status_code=status.HTTP_200_OK, tags=["Accounts"])
-def sendOtp(request: SendOtp, db: Session = Depends(deps.get_db)):
-    existing_otp_code = db.query(OtpCode).filter(OtpCode.phone_number == request.phone_number).first()
-    if existing_otp_code:
-        time_diff = datetime.utcnow() - existing_otp_code.created_at
-        if time_diff < timedelta(minutes=2):
+def send_otp(request: SendOtp, db: Session = Depends(deps.get_db)):
+    existing_otp = AccountCrud.get_otp_by_phone(db, request.phone_number)
+
+    if existing_otp:
+        if not AccountCrud.is_otp_expired(existing_otp):
             raise HTTPException(status_code=400, detail="The previous code is still valid. Please wait a moment.")
-        else:
-            db.delete(existing_otp_code)
-            db.commit()
+        AccountCrud.delete_otp(db, existing_otp)
 
     code = str(random.randint(100000, 999999))
-    new_otp = OtpCode(phone_number=request.phone_number, code=code, created_at=datetime.utcnow())
-    # TODO : remove this part after sending code via sms.
-    print(code)
-    db.add(new_otp)
-    db.commit()
-    db.refresh(new_otp)
+    print(code)  # ⚠️ برای production حذف شود
+    AccountCrud.create_otp(db, request.phone_number, code)
+
     return {"data": "The OTP code was sent successfully."}
 
 
 @router.post("/verify-otp", status_code=200, tags=["Accounts"])
 def verify_otp(request: VerifyOtp, db: Session = Depends(deps.get_db)):
-    otp_record = db.query(OtpCode).filter(OtpCode.phone_number == request.phone_number).first()
+    otp_record = AccountCrud.get_otp_by_phone(db, request.phone_number)
 
     if not otp_record:
         raise HTTPException(status_code=404, detail="OTP code not found.")
-    
+
     if otp_record.code != request.code:
         raise HTTPException(status_code=400, detail="Incorrect OTP code.")
-    
-    time_diff = datetime.utcnow() - otp_record.created_at
-    if time_diff > timedelta(minutes=2):
+
+    if AccountCrud.is_otp_expired(otp_record):
         raise HTTPException(status_code=400, detail="OTP code has expired.")
 
-    db.delete(otp_record)
-    db.commit()
+    AccountCrud.delete_otp(db, otp_record)
 
-    access_token = create_access_token(data={"sub": request.phone_number})
-    return {"access_token": access_token, "token_type": "bearer"}        
+    token = create_access_token(data={"sub": request.phone_number})
+    return {"access_token": token, "token_type": "bearer"}       
