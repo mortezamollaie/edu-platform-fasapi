@@ -1,12 +1,8 @@
 from fastapi import Depends, APIRouter, status, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.schemas.account import SignUp, SignUpResponse, SendOtp, VerifyOtp
-from app.models.user import User
-from app.models.account import OtpCode
-from app.services.hash_password import Hash
-from datetime import datetime, timedelta
-from app.services.generate_token import create_access_token
+from app.schemas.account import SendOtp, VerifyOtp
+from app.services import token_management_service as Token
 from app.crud import account as AccountCrud
 import random
 
@@ -43,5 +39,5 @@ def verify_otp(request: VerifyOtp, db: Session = Depends(deps.get_db)):
 
     AccountCrud.delete_otp(db, otp_record)
 
-    token = create_access_token(data={"sub": request.phone_number})
+    token = Token.create_access_token(data={"sub": request.phone_number})
     return {"access_token": token, "token_type": "bearer"}       
