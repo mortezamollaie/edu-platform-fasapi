@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from app.api.api_v1 import user, account
 from app.db.init_db import init_db
-from fastapi.security import OAuth2PasswordBearer
 
 app = FastAPI(title="Edu Platform")
 

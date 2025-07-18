@@ -10,7 +10,7 @@ router = APIRouter()
 
 @router.post("/send-otp", status_code=status.HTTP_200_OK, tags=["Accounts"])
 def send_otp(request: SendOtp, db: Session = Depends(deps.get_db)):
-    existing_otp = AccountCrud.get_otp_by_phone(db, request.phone_number)
+    existing_otp = AccountCrud.get_otp_by_email(db, request.email)
 
     if existing_otp:
         if not AccountCrud.is_otp_expired(existing_otp):
@@ -18,15 +18,15 @@ def send_otp(request: SendOtp, db: Session = Depends(deps.get_db)):
         AccountCrud.delete_otp(db, existing_otp)
 
     code = str(random.randint(100000, 999999))
-    print(code) 
-    AccountCrud.create_otp(db, request.phone_number, code)
+    print(code)
+    AccountCrud.create_otp(db, request.email, code)
 
     return {"data": "The OTP code was sent successfully."}
 
 
 @router.post("/verify-otp", status_code=200, tags=["Accounts"])
 def verify_otp(request: VerifyOtp, db: Session = Depends(deps.get_db)):
-    otp_record = AccountCrud.get_otp_by_phone(db, request.phone_number)
+    otp_record = AccountCrud.get_otp_by_email(db, request.email)
 
     if not otp_record:
         raise HTTPException(status_code=404, detail="OTP code not found.")
@@ -39,8 +39,8 @@ def verify_otp(request: VerifyOtp, db: Session = Depends(deps.get_db)):
 
     AccountCrud.delete_otp(db, otp_record)
 
-    token = Token.create_access_token(data={"sub": request.phone_number})
-    return {"access_token": token, "token_type": "bearer"}       
+    token = Token.create_access_token(data={"sub": request.email})
+    return {"access_token": token, "token_type": "bearer"}      
 
 
 @router.get("/current-user")

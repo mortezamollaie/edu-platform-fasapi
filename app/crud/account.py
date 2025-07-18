@@ -2,18 +2,12 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 from app.models.account import OtpCode
 
-def get_otp_by_phone(db: Session, phone_number: str):
-    """
-    Retrieve an OTP record by phone number.
 
-    Args:
-        db (Session): SQLAlchemy database session.
-        phone_number (str): The phone number to search for.
-
-    Returns:
-        OtpCode | None: The OTP record if found, otherwise None.
+def get_otp_by_email(db: Session, email: str):
     """
-    return db.query(OtpCode).filter(OtpCode.phone_number == phone_number).first()
+    Retrieve an OTP record by email.
+    """
+    return db.query(OtpCode).filter(OtpCode.email == email).first()
 
 
 def delete_otp(db: Session, otp: OtpCode):
@@ -31,20 +25,12 @@ def delete_otp(db: Session, otp: OtpCode):
     db.commit()
 
 
-def create_otp(db: Session, phone_number: str, code: str):
+def create_otp(db: Session, email: str, code: str):
     """
-    Create and store a new OTP record in the database.
-
-    Args:
-        db (Session): SQLAlchemy database session.
-        phone_number (str): The phone number for the OTP.
-        code (str): The OTP code to store.
-
-    Returns:
-        OtpCode: The created OTP record.
+    Create and store a new OTP record in the database using email.
     """
     otp = OtpCode(
-        phone_number=phone_number,
+        email=email,
         code=code,
         created_at=datetime.utcnow()
     )

@@ -1,25 +1,9 @@
-from pydantic import BaseModel, constr, Field
-
-class SignUp(BaseModel):
-    first_name: str
-    last_name: str
-    email: str
-    password: str
-
-
-class SignUpResponse(SignUp):
-    first_name: str
-    last_name: str
-    email: str
-
-    class Config():
-        orm_mode = True    
-
+from pydantic import BaseModel, constr, EmailStr
 
 class SendOtp(BaseModel):
-    phone_number: str = Field(..., pattern=r'^09\d{9}$')
+    email: constr()
 
 
 class VerifyOtp(BaseModel):
-    phone_number: str = Field(..., pattern=r'^09\d{9}$')
+    email: constr()
     code: constr(min_length=6, max_length=6)

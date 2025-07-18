@@ -6,7 +6,7 @@ class OtpCode(Base):
     __tablename__ = "otp_codes"
 
     id = Column(Integer, primary_key=True, index=True)
-    phone_number = Column(String(11), nullable=False)
+    email = Column(String(255), nullable=False, index=True)
     code = Column(String(6), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     
