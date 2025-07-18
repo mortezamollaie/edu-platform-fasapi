@@ -1,7 +1,7 @@
 from fastapi import Depends, APIRouter, status, HTTPException, Request
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.schemas.account import SignUp, Register
+from app.schemas.account import SignUp, Register, Login
 from app.services import token_management_service as Token
 from app.services import hash_password
 from app.crud import account as AccountCrud
@@ -66,6 +66,22 @@ def register(request: Request, payload: Register, db: Session = Depends(deps.get
     token = Token.create_access_token(data={"sub": user.email})
 
     return {"message": "User registered successfully.", "user_id": user.id, "token": token}
+
+
+@router.post("/login", status_code=200, tags=["Accounts"])
+def login(payload: Login, db: Session = Depends(deps.get_db)):
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User with this email not found.")
+
+    if not hash_password.Hash().verify(payload.password, user.password):
+        return HTTPException(status_code=400, detail="Password was incorrect.")
+    
+    token = Token.create_access_token(data={"sub": user.email})
+
+    return {"message": "User logged in successfully.", "user_id": user.id, "token": token}
+
+
 
 
 

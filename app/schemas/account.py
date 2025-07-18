@@ -3,10 +3,10 @@ from pydantic import BaseModel, constr, validator
 email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'
 
 class SignUp(BaseModel):
-    email: constr(pattern=email_pattern)
+    email: constr(pattern=email_pattern, max_length=255)
     username: constr(min_length=3, max_length=30)
-    password: constr(min_length=8, max_length=128)
-    password2: constr(min_length=8, max_length=128)
+    password: constr(min_length=8, max_length=16)
+    password2: constr(min_length=8, max_length=16)
 
     @validator("password2")
     def passwords_match(cls, v, values):
@@ -18,3 +18,8 @@ class SignUp(BaseModel):
 class Register(BaseModel):
     email: constr(pattern=email_pattern)
     code: constr(min_length=6, max_length=6)
+
+
+class Login(BaseModel):
+    email: constr(pattern=email_pattern, max_length=255)
+    password: constr(min_length=8, max_length=16)
