@@ -18,7 +18,7 @@ def send_otp(request: SendOtp, db: Session = Depends(deps.get_db)):
         AccountCrud.delete_otp(db, existing_otp)
 
     code = str(random.randint(100000, 999999))
-    print(code)  # ⚠️ برای production حذف شود
+    print(code) 
     AccountCrud.create_otp(db, request.phone_number, code)
 
     return {"data": "The OTP code was sent successfully."}
@@ -41,3 +41,8 @@ def verify_otp(request: VerifyOtp, db: Session = Depends(deps.get_db)):
 
     token = Token.create_access_token(data={"sub": request.phone_number})
     return {"access_token": token, "token_type": "bearer"}       
+
+
+@router.get("/current-user")
+def get_current_user(current_user=Depends(Token.get_current_user)):
+    return {"message": f"Hello user {current_user['user_id']}"}
