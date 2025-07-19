@@ -35,3 +35,19 @@ class RetriveCourse(BaseModel):
     class Config:
         orm_mode = True
 
+
+class CreateChapter(BaseModel):
+    title: str
+    slug: str
+    is_free: Optional[bool] = False
+    course_slug: str        
+
+
+class ReadChapter(BaseModel):
+    id: int
+    title: str
+    slug: str
+    is_free: bool
+
+    class Config:
+        orm_mode = True
