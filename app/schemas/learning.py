@@ -26,3 +26,13 @@ class RetriveCourse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UpdateCourse(BaseModel):
+    title: Optional[str] = None
+    full_name: Optional[str] = None
+    slug: Optional[str] = None
+    lecturer: Optional[str] = None
+    language: Optional[str] = None
+    is_free: Optional[bool] = None
+    description: Optional[str] = None
