@@ -43,7 +43,7 @@ class CreateChapter(BaseModel):
     course_slug: str        
 
 
-class ReadChapter(BaseModel):
+class RetriveChapter(BaseModel):
     id: int
     title: str
     slug: str
