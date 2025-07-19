@@ -3,20 +3,14 @@ from sqlalchemy.orm import Session
 from app.api import deps
 from app.schemas.learning import CreateCourse, RetriveCourse
 from app.models.learning import Course
+from typing import List
 
 router = APIRouter()
 
-@router.get("/courses", status_code=status.HTTP_200_OK, tags=["Learning"])
-def courses():
-    pass
-
-@router.get("/courses/{slug}", response_model=RetriveCourse, status_code=status.HTTP_200_OK, tags=["Learning"])
-def retrive_course(id: int, db: Session = Depends(deps.get_db)):
-    course = db.query(Course).get(Course.id == id)
-    if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this id not found.")
-    return course
-
+@router.get("/courses", response_model=List[RetriveCourse], status_code=status.HTTP_200_OK, tags=["Learning"])
+def courses(db: Session = Depends(deps.get_db)):
+    courses = db.query(Course).all()
+    return courses
 
 # TODO : implement permission for creating with admin
 @router.post("/courses", response_model=RetriveCourse, status_code=status.HTTP_201_CREATED, tags=["Learning"])
@@ -37,4 +31,11 @@ def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
     db.add(course)
     db.commit()
     db.refresh(course)
+    return course
+
+@router.get("/courses/{slug}", response_model=RetriveCourse, status_code=status.HTTP_200_OK, tags=["Learning"])
+def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
+    course = db.query(Course).filter(Course.slug == slug).first()
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this id not found.")
     return course
