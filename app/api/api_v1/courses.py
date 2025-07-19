@@ -33,7 +33,7 @@ def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
 def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
     course = db.query(Course).filter(Course.slug == slug).first()
     if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this id not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this slug not found.")
     return course
 
 
@@ -41,7 +41,7 @@ def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
 def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.get_db)):
     course = db.query(Course).filter(Course.slug == slug).first()
     if not course:
-        raise HTTPException(status_code=404, detail="Course not found")
+        raise HTTPException(status_code=404, detail="Course with this slug not found.")
 
     for key, value in payload.dict(exclude_unset=True).items():
         setattr(course, key, value)
@@ -50,3 +50,13 @@ def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.g
     db.refresh(course)
     return course
 
+
+@router.delete("/courses/{slug}")
+def delete_course(slug: str, db: Session = Depends(deps.get_db)):
+    course = db.query(Course).filter(Course.slug == slug).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course with this slug not found.")
+    
+    db.delete(course)
+    db.commit()
+    return
