@@ -82,9 +82,6 @@ def login(payload: Login, db: Session = Depends(deps.get_db)):
     return {"message": "User logged in successfully.", "user_id": user.id, "token": token}
 
 
-
-
-
 @router.get("/current-user")
 def get_current_user(current_user=Depends(Token.get_current_user)):
     return {"message": f"Hello user {current_user['user_id']}"}
