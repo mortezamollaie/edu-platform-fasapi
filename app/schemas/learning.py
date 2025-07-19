@@ -4,6 +4,7 @@ from datetime import datetime
 
 class CreateCourse(BaseModel):
     title: str
+    slug: str
     full_name: Optional[str] = None
     lecturer: Optional[str] = None
     language: Optional[str] = None
@@ -14,6 +15,7 @@ class CreateCourse(BaseModel):
 class RetriveCourse(BaseModel):
     id: int
     title: str
+    slug: str
     full_name: Optional[str] = None
     lecturer: Optional[str] = None
     language: Optional[str] = None

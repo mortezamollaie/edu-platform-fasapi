@@ -10,7 +10,12 @@ router = APIRouter()
 def courses():
     pass
 
-@router.get("/")
+@router.get("/courses/{slug}", response_model=RetriveCourse, status_code=status.HTTP_200_OK, tags=["Learning"])
+def retrive_course(id: int, db: Session = Depends(deps.get_db)):
+    course = db.query(Course).get(Course.id == id)
+    if not course:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this id not found.")
+    return course
 
 
 # TODO : implement permission for creating with admin
@@ -23,6 +28,7 @@ def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
     course = Course(
         title = payload.title,
         full_name = payload.full_name,
+        slug=payload.slug,
         lecturer = payload.lecturer,
         language = payload.language,
         is_free = payload.is_free,

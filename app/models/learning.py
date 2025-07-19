@@ -8,6 +8,7 @@ class Course(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String)
     full_name = Column(String, nullable=True)
+    slug = Column(String)
     lecturer = Column(String, nullable=True)
     language = Column(String, nullable=True)
     is_free = Column(Boolean, default=False)
