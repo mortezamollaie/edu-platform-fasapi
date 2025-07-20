@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text, ForeignKey, Time
 from app.db.base import Base
 from datetime import datetime
 from sqlalchemy.orm import relationship
@@ -29,5 +29,20 @@ class Chapter(Base):
     is_free = Column(Boolean, default=False)
     course_id = Column(Integer, ForeignKey("courses.id"))
     course = relationship("Course", back_populates="chapters")
+    lectures = relationship("Lecture", back_populates="chapter", cascade="all, delete-orphan")
 
+
+class Lecture(Base):
+    __tablename__ = "lectures"
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String)
+    slug = Column(String)
+    time = Column(Time, nullable=True)
+    is_free = Column(Boolean, default=False)
+    video_url = Column(String, nullable=True)
+    drive_url = Column(String, nullable=True)
+    youtube_url = Column(String, nullable=True)
+    chapter_id = Column(Integer, ForeignKey("chapters.id"))
+    chapter = relationship("Chapter", back_populates="lectures")
 

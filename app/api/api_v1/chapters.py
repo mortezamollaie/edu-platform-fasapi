@@ -1,8 +1,8 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.schemas.learning import RetrieveChapter, CreateChapter, UpdateChapter
-from app.models.learning import Course, Chapter
+from app.schemas.learning import RetrieveChapter, CreateChapter, UpdateChapter, RetrieveLecture
+from app.models.learning import Course, Chapter, Lecture
 from typing import List
 
 router = APIRouter()
@@ -70,3 +70,12 @@ def delete_chapter(slug: str, db: Session = Depends(deps.get_db)):
     db.delete(chapter)
     db.commit()
     return
+
+@router.get("/chapters/{slug}/lectures", response_model=List[RetrieveLecture], status_code=status.HTTP_200_OK, tags=["Lectures"])
+def get_chapter_lectures(slug: str, db: Session = Depends(deps.get_db)):
+    chapter = db.query(Chapter).filter(Chapter.slug == slug).first()
+    if not chapter:
+        raise HTTPException(status_code=404, detail="Chapter with this slug not found.")
+
+    lectures = db.query(Lecture).filter(Lecture.chapter_id == chapter.id).all()
+    return lectures
