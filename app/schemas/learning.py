@@ -40,10 +40,17 @@ class CreateChapter(BaseModel):
     title: str
     slug: str
     is_free: Optional[bool] = False
-    course_slug: str        
+    course_slug: str   
 
 
-class RetriveChapter(BaseModel):
+class UpdateChapter(BaseModel):
+    title: Optional[str] = None
+    slug: Optional[str] = None
+    is_free: Optional[bool] = False
+    course_slug: Optional[str] = None
+
+
+class RetrieveChapter(BaseModel):
     id: int
     title: str
     slug: str

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
-from app.schemas.learning import CreateCourse, RetriveCourse, UpdateCourse
+from app.schemas.learning import CreateCourse, RetriveCourse, UpdateCourse, RetrieveChapter
 from app.models.learning import Course
 from typing import List
 
@@ -60,3 +60,11 @@ def delete_course(slug: str, db: Session = Depends(deps.get_db)):
     db.delete(course)
     db.commit()
     return
+
+@router.get("/courses/{slug}/chapters", response_model=List[RetrieveChapter], status_code=status.HTTP_200_OK, tags=["Learning"])
+def get_course_chapters(slug: str, db: Session = Depends(deps.get_db)):
+    course = db.query(Course).filter(Course.slug == slug).first()
+    if not course:
+        raise HTTPException(status_code=404, detail="Course with this slug not found.")
+
+    return course.chapters
