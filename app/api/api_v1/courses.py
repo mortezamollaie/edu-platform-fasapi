@@ -7,13 +7,13 @@ from typing import List
 
 router = APIRouter()
 
-@router.get("/courses", response_model=List[RetrieveCourse], status_code=status.HTTP_200_OK, tags=["Learning"])
+@router.get("/courses", response_model=List[RetrieveCourse], status_code=status.HTTP_200_OK, tags=["Courses"])
 def courses(db: Session = Depends(deps.get_db)):
     courses = db.query(Course).all()
     return courses
 
 # TODO : implement permission for creating with admin
-@router.post("/courses", response_model=RetrieveCourse, status_code=status.HTTP_201_CREATED, tags=["Learning"])
+@router.post("/courses", response_model=RetrieveCourse, status_code=status.HTTP_201_CREATED, tags=["Courses"])
 def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
     existing_course = db.query(Course).filter(Course.title == payload.title).first()
     if existing_course:
@@ -29,7 +29,7 @@ def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
     return course
 
 
-@router.get("/courses/{slug}", response_model=RetrieveCourse, status_code=status.HTTP_200_OK, tags=["Learning"])
+@router.get("/courses/{slug}", response_model=RetrieveCourse, status_code=status.HTTP_200_OK, tags=["Courses"])
 def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
     course = db.query(Course).filter(Course.slug == slug).first()
     if not course:
@@ -62,7 +62,7 @@ def delete_course(slug: str, db: Session = Depends(deps.get_db)):
     return
 
 
-@router.get("/courses/{slug}/chapters", response_model=List[RetrieveChapter], status_code=status.HTTP_200_OK, tags=["Learning"])
+@router.get("/courses/{slug}/chapters", response_model=List[RetrieveChapter], status_code=status.HTTP_200_OK, tags=["Courses"])
 def get_course_chapters(slug: str, db: Session = Depends(deps.get_db)):
     course = db.query(Course).filter(Course.slug == slug).first()
     if not course:
