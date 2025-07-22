@@ -49,7 +49,19 @@ class RoleBase(BaseModel):
 
 
 class CreateRole(RoleBase):
-    permission_ids: List[int] = []
+    pass
+
+
+class UpdateRole(RoleBase):
+    pass
+
+
+class AssignPermissions(BaseModel):
+    permission_ids: List[int]
+
+
+class PermissionName(BaseModel):
+    name: str
 
 
 class RoleOut(RoleBase):
