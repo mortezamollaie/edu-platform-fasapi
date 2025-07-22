@@ -13,7 +13,8 @@ role_permission = Table(
 user_role = Table(
     'user_role', Base.metadata,
     Column('user_id', Integer, ForeignKey('users.id')),
-    Column('role_id', Integer, ForeignKey('roles.id'))
+    Column('role_id', Integer, ForeignKey('roles.id')),
+    extend_existing=True
 ) 
 
 
@@ -29,7 +30,7 @@ class Permission(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, unique=True)
     roles = relationship('Role', secondary=role_permission, back_populates='permissions')
-    
+
 
 class OtpCode(Base):
     __tablename__ = "otp_codes"
@@ -38,5 +39,4 @@ class OtpCode(Base):
     email = Column(String(255), nullable=False, index=True)
     code = Column(String(6), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    roles = relationship('Role', secondary=user_role)
     
