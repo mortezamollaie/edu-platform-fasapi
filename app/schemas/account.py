@@ -1,4 +1,5 @@
 from pydantic import BaseModel, constr, validator
+from typing import List
 
 email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'
 
@@ -23,3 +24,32 @@ class Register(BaseModel):
 class Login(BaseModel):
     email: constr(pattern=email_pattern, max_length=255)
     password: constr(min_length=8, max_length=16)
+
+
+class PermissionBase(BaseModel):
+    name: str
+
+
+class CreatePermission(PermissionBase):
+    pass
+
+
+class PermissionOut(PermissionBase):
+    id: int
+    class Config:
+        orm_mode = True
+
+
+class RoleBase(BaseModel):
+    name: str
+
+
+class CreateRole(RoleBase):
+    permission_ids: List[int] = []
+
+
+class RoleOut(RoleBase):
+    id: int
+    permissions: List[PermissionOut]
+    class Config:
+        orm_mode = True

@@ -2,6 +2,9 @@ import os
 from fastapi import Depends, HTTPException, status
 from jose import JWTError, jwt
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from sqlalchemy.orm import Session
+from app.models.user import User
+from app.api import deps
 
 SECRET_KEY=os.getenv("SECRET_KEY")
 ALGORITHM=os.getenv("ALGORITHM")
@@ -24,3 +27,19 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
         return {"user_id": user_id}
     except JWTError:
         raise credentials_exception
+    
+
+def has_permission(permission_name: str):
+    def permission_checker(
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(deps.get_db)
+    ):
+        for role in current_user.roles:
+            for perm in role.permissions:
+                if perm.name == permission_name:
+                    return
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You don't have permission"
+        )
+    return permission_checker
