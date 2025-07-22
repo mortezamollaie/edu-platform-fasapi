@@ -103,5 +103,28 @@ def create_permission(db: Session, data: CreatePermission):
     return perm
 
 
+def get_permission(db: Session, permission_id: int):
+    return db.query(Permission).filter(Permission.id == permission_id).first()
+
+
 def get_all_permissions(db: Session):
     return db.query(Permission).all()
+
+
+def update_permission(db: Session, permission_id: int, data: CreatePermission):
+    permission = get_permission(db, permission_id)
+    if not permission:
+        return None
+    permission.name = data.name
+    db.commit()
+    db.refresh(permission)
+    return permission
+
+
+def delete_permission(db: Session, permission_id: int):
+    permission = get_permission(db, permission_id)
+    if not permission:
+        return None
+    db.delete(permission)
+    db.commit()
+    return True

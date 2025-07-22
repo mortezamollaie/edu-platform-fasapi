@@ -34,6 +34,10 @@ class CreatePermission(PermissionBase):
     pass
 
 
+class UpdatePermission(PermissionBase):
+    pass
+
+
 class PermissionOut(PermissionBase):
     id: int
     class Config:
