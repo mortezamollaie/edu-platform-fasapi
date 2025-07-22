@@ -2,36 +2,31 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
 from app.schemas.learning import CreateCourse, RetrieveCourse, UpdateCourse, RetrieveChapter
-from app.models.learning import Course
+import app.crud.courses as coursesCrud
 from typing import List
 
 router = APIRouter()
 
 @router.get("/courses", response_model=List[RetrieveCourse], status_code=status.HTTP_200_OK, tags=["Courses"])
 def courses(db: Session = Depends(deps.get_db)):
-    courses = db.query(Course).all()
-    return courses
+    """Get list of all courses"""
+    return coursesCrud.get_all_courses(db)
 
-# TODO : implement permission for creating with admin
+
 @router.post("/courses", response_model=RetrieveCourse, status_code=status.HTTP_201_CREATED, tags=["Courses"])
 def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
-    existing_course = db.query(Course).filter(Course.title == payload.title).first()
+    """Create a new course"""
+    existing_course = coursesCrud.get_course_by_title(db, payload.title)
     if existing_course:
         raise HTTPException(status_code=400, detail="Course with this title already exists.")
 
-    course = Course()
-    for key, value in payload.dict().items():
-        setattr(course, key, value)
-
-    db.add(course)
-    db.commit()
-    db.refresh(course)
-    return course
+    return coursesCrud.create_course(db, payload)
 
 
 @router.get("/courses/{slug}", response_model=RetrieveCourse, status_code=status.HTTP_200_OK, tags=["Courses"])
 def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
-    course = db.query(Course).filter(Course.slug == slug).first()
+    """Retrieve a specific course by slug"""
+    course = coursesCrud.get_course_by_slug(db, slug)
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course with this slug not found.")
     return course
@@ -39,33 +34,26 @@ def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
 
 @router.patch("/courses/{slug}")
 def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.get_db)):
-    course = db.query(Course).filter(Course.slug == slug).first()
+    """Update a course's information"""
+    course = coursesCrud.update_course(db, slug, payload)
     if not course:
         raise HTTPException(status_code=404, detail="Course with this slug not found.")
-
-    for key, value in payload.dict(exclude_unset=True).items():
-        setattr(course, key, value)
-
-    db.commit()
-    db.refresh(course)
     return course
 
 
 @router.delete("/courses/{slug}")
 def delete_course(slug: str, db: Session = Depends(deps.get_db)):
-    course = db.query(Course).filter(Course.slug == slug).first()
-    if not course:
+    """Delete a course"""
+    result = coursesCrud.delete_course(db, slug)
+    if not result:
         raise HTTPException(status_code=404, detail="Course with this slug not found.")
-    
-    db.delete(course)
-    db.commit()
-    return
+    return {"message": "Course deleted successfully"}
 
 
 @router.get("/courses/{slug}/chapters", response_model=List[RetrieveChapter], status_code=status.HTTP_200_OK, tags=["Courses"])
 def get_course_chapters(slug: str, db: Session = Depends(deps.get_db)):
-    course = db.query(Course).filter(Course.slug == slug).first()
-    if not course:
+    """Get all chapters for a specific course"""
+    chapters = coursesCrud.get_course_chapters(db, slug)
+    if chapters is None:
         raise HTTPException(status_code=404, detail="Course with this slug not found.")
-
-    return course.chapters
+    return chapters
