@@ -6,6 +6,7 @@ from app.services import token_management_service as Token
 from app.services import hash_password
 from app.crud import account as AccountCrud
 from app.models.user import User
+from app.dependencies import get_current_user
 import random
 
 router = APIRouter()
@@ -83,5 +84,5 @@ def login(payload: Login, db: Session = Depends(deps.get_db)):
 
 
 @router.get("/current-user")
-def get_current_user(current_user=Depends(Token.get_current_user)):
+def get_current_user(current_user=Depends(get_current_user)):
     return {"message": f"Hello user {current_user['user_id']}"}
