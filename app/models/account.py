@@ -47,10 +47,6 @@ class UserRegisteredCourse(Base):
     user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
     registered_at = Column(DateTime, default=datetime.utcnow)
-    
-    # Relationships
-    user = relationship("User", backref="registered_courses")
-    course = relationship("Course", backref="registered_users")
 
 
 class OtpCode(Base):
