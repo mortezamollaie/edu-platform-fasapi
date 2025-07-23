@@ -323,3 +323,66 @@ def delete_permission(db: Session, permission_id: int):
     db.delete(permission)
     db.commit()
     return True
+
+# UserRegisteredCourse CRUD functions
+def create_user_registered_course(db: Session, user_id: int, course_id: int):
+    """
+    Create a new user registered course record.
+    """
+    from app.models.account import UserRegisteredCourse
+    
+    # Check if user is already registered for this course
+    existing = db.query(UserRegisteredCourse).filter(
+        UserRegisteredCourse.user_id == user_id,
+        UserRegisteredCourse.course_id == course_id
+    ).first()
+    
+    if existing:
+        return None  # Already registered
+    
+    registered_course = UserRegisteredCourse(
+        user_id=user_id,
+        course_id=course_id
+    )
+    db.add(registered_course)
+    db.commit()
+    db.refresh(registered_course)
+    return registered_course
+
+
+def get_user_registered_courses(db: Session, user_id: int):
+    """
+    Get all courses registered by a user.
+    """
+    from app.models.account import UserRegisteredCourse
+    return db.query(UserRegisteredCourse).filter(
+        UserRegisteredCourse.user_id == user_id
+    ).all()
+
+
+def get_user_registered_course(db: Session, user_id: int, course_id: int):
+    """
+    Get a specific user registered course record.
+    """
+    from app.models.account import UserRegisteredCourse
+    return db.query(UserRegisteredCourse).filter(
+        UserRegisteredCourse.user_id == user_id,
+        UserRegisteredCourse.course_id == course_id
+    ).first()
+
+
+def delete_user_registered_course(db: Session, user_id: int, course_id: int):
+    """
+    Delete a user registered course record.
+    """
+    from app.models.account import UserRegisteredCourse
+    registered_course = db.query(UserRegisteredCourse).filter(
+        UserRegisteredCourse.user_id == user_id,
+        UserRegisteredCourse.course_id == course_id
+    ).first()
+    
+    if registered_course:
+        db.delete(registered_course)
+        db.commit()
+        return True
+    return False

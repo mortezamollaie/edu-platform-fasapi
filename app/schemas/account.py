@@ -1,5 +1,6 @@
 from pydantic import BaseModel, constr, validator
 from typing import List
+from datetime import datetime
 
 email_pattern = r'^[\w\.-]+@[\w\.-]+\.\w{2,}$'
 
@@ -67,5 +68,26 @@ class PermissionName(BaseModel):
 class RoleOut(RoleBase):
     id: int
     permissions: List[PermissionOut]
+    class Config:
+        orm_mode = True
+
+
+class UserRegisteredCourseBase(BaseModel):
+    course_id: int
+
+
+class CreateUserRegisteredCourse(UserRegisteredCourseBase):
+    pass
+
+
+class UpdateUserRegisteredCourse(BaseModel):
+    pass
+
+
+class UserRegisteredCourseOut(UserRegisteredCourseBase):
+    id: int
+    user_id: int
+    registered_at: datetime
+    
     class Config:
         orm_mode = True

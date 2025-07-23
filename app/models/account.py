@@ -18,6 +18,14 @@ user_role = Table(
 ) 
 
 
+user_registered_course = Table(
+    'user_registered_course', Base.metadata,
+    Column('user_id', Integer, ForeignKey('users.id')),
+    Column('course_id', Integer, ForeignKey('courses.id')),
+    extend_existing=True
+)
+
+
 class Role(Base):
     __tablename__ = 'roles'
     id = Column(Integer, primary_key=True)
@@ -32,6 +40,19 @@ class Permission(Base):
     roles = relationship('Role', secondary=role_permission, back_populates='permissions')
 
 
+class UserRegisteredCourse(Base):
+    __tablename__ = "user_registered_courses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    course_id = Column(Integer, ForeignKey('courses.id'), nullable=False)
+    registered_at = Column(DateTime, default=datetime.utcnow)
+    
+    # Relationships
+    user = relationship("User", backref="registered_courses")
+    course = relationship("Course", backref="registered_users")
+
+
 class OtpCode(Base):
     __tablename__ = "otp_codes"
 
@@ -39,4 +60,3 @@ class OtpCode(Base):
     email = Column(String(255), nullable=False, index=True)
     code = Column(String(6), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-    

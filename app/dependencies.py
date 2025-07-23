@@ -12,7 +12,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 security = HTTPBearer()
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+    db: Session = Depends(deps.get_db)
+) -> User:
     token = credentials.credentials 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -21,10 +24,15 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id: str = payload.get("sub")
-        if user_id is None:
+        user_email: str = payload.get("sub")
+        if user_email is None:
             raise credentials_exception
-        return {"user_id": user_id}
+        
+        user = db.query(User).filter(User.email == user_email).first()
+        if user is None:
+            raise credentials_exception
+            
+        return user
     except JWTError:
         raise credentials_exception
     
@@ -37,7 +45,7 @@ def has_permission(permission_name: str):
         for role in current_user.roles:
             for perm in role.permissions:
                 if perm.name == permission_name:
-                    return
+                    return current_user
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have permission"
