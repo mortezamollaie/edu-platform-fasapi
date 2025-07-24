@@ -73,18 +73,6 @@ def create_default_permissions():
         "create_users", 
         "update_users",
         "delete_users",
-        "read_courses",
-        "create_courses",
-        "update_courses", 
-        "delete_courses",
-        "read_chapters",
-        "create_chapters",
-        "update_chapters",
-        "delete_chapters",
-        "read_lectures",
-        "create_lectures",
-        "update_lectures",
-        "delete_lectures",
         "manage_roles",
         "manage_permissions",
         "view_reports",
@@ -126,20 +114,20 @@ def assign_manager_role_to_user(email: str):
         user = db.query(User).filter(User.email == email).first()
         
         if not user:
-            print(f"❌ User with email '{email}' not found!")
+            print(f"User with email '{email}' not found!")
             return False
         
         # Find the Manager role
         manager_role = db.query(Role).filter(Role.name == "Manager").first()
         
         if not manager_role:
-            print("❌ Manager role not found! Please create the Manager role first.")
+            print("Manager role not found! Please create the Manager role first.")
             print("Run: python create_manager_role.py --create-permissions")
             return False
         
         # Check if user already has the Manager role
         if manager_role in user.roles:
-            print(f"✅ User '{email}' already has the Manager role!")
+            print(f"User '{email}' already has the Manager role!")
             return True
         
         # Assign Manager role to user
@@ -147,7 +135,7 @@ def assign_manager_role_to_user(email: str):
         db.commit()
         db.refresh(user)
         
-        print(f"✅ Manager role successfully assigned to user '{email}'!")
+        print(f"Manager role successfully assigned to user '{email}'!")
         print(f"   User now has {len(user.roles)} role(s):")
         for role in user.roles:
             print(f"   - {role.name}")
@@ -155,7 +143,7 @@ def assign_manager_role_to_user(email: str):
         return True
         
     except Exception as e:
-        print(f"❌ Error assigning manager role: {str(e)}")
+        print(f"Error assigning manager role: {str(e)}")
         db.rollback()
         return False
     finally:
@@ -166,26 +154,26 @@ def interactive_assign_manager():
     """
     Interactive function to get email and assign manager role.
     """
-    print("\n🔐 Assign Manager Role to User")
+    print("\nAssign Manager Role to User")
     print("=" * 40)
     
     email = input("Enter user email: ").strip()
     
     if not email:
-        print("❌ Email cannot be empty!")
+        print("Email cannot be empty!")
         return
     
     if "@" not in email:
-        print("❌ Please enter a valid email address!")
+        print("Please enter a valid email address!")
         return
     
     print(f"\nAssigning Manager role to: {email}")
     success = assign_manager_role_to_user(email)
     
     if success:
-        print("\n✨ Assignment completed successfully!")
+        print("\nAssignment completed successfully!")
     else:
-        print("\n❌ Assignment failed!")
+        print("\nAssignment failed!")
 
 
 if __name__ == "__main__":
@@ -210,7 +198,7 @@ if __name__ == "__main__":
         print("Creating manager role...")
         create_manager_role()
         print("=" * 50)
-        print("✨ Setup completed!")
+        print("Setup completed!")
     elif args.assign_user:
         assign_manager_role_to_user(args.assign_user)
     elif args.interactive:

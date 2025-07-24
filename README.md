@@ -91,7 +91,20 @@ alembic revision --autogenerate -m "Initial migration"
 alembic upgrade head
 ```
 
-### 6. **Run the project:**
+### 6. **Set up initial roles and permissions:**
+
+```bash
+# Create default permissions and Manager role
+python create_manager_role.py --create-permissions
+
+# Assign Manager role to a specific user (optional)
+python create_manager_role.py --assign-user admin@example.com
+
+# Or use interactive mode to assign Manager role
+python create_manager_role.py --interactive
+```
+
+### 7. **Run the project:**
 
 ```bash
 uvicorn app.main:app --reload
@@ -282,6 +295,35 @@ edu_platform/
 ---
 
 ## 🔧 Development Guidelines
+
+### Initial Setup for New Installations
+
+After setting up the database and before running the application for the first time, you need to create the initial roles and permissions:
+
+```bash
+# Create all default permissions and Manager role
+python create_manager_role.py --create-permissions
+```
+
+This script will:
+- Create 20+ default permissions (read_users, create_courses, etc.)
+- Create a "Manager" role with all permissions assigned
+- Provide options to assign the Manager role to specific users
+
+**Manager Role Script Options:**
+```bash
+# Create permissions and Manager role
+python create_manager_role.py --create-permissions
+
+# Assign Manager role to a user by email
+python create_manager_role.py --assign-user user@example.com
+
+# Interactive mode to assign Manager role
+python create_manager_role.py --interactive
+
+# Show help and usage
+python create_manager_role.py
+```
 
 ### Adding New Features
 

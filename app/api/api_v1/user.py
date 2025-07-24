@@ -177,7 +177,7 @@ def remove_roles_from_user(
 @router.get("/users/{user_id}/roles", tags=["Users", "Roles"])
 def get_user_roles(
     user_id: int,
-    current_user: User = Depends(has_permission("view_users")),
+    current_user: User = Depends(has_permission("manage_user_roles")),
     db: Session = Depends(deps.get_db)
 ):
     """Get roles assigned to a user"""
