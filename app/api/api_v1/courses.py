@@ -2,8 +2,10 @@ from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
 from app.schemas.learning import CreateCourse, RetrieveCourse, UpdateCourse, RetrieveChapter
+from app.models.user import User
 import app.crud.courses as coursesCrud
 from typing import List
+from app.dependencies import has_permission
 
 router = APIRouter()
 
@@ -14,7 +16,7 @@ def courses(db: Session = Depends(deps.get_db)):
 
 
 @router.post("/courses", response_model=RetrieveCourse, status_code=status.HTTP_201_CREATED, tags=["Courses"])
-def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db)):
+def create_course(payload: CreateCourse, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_courses"))):
     """Create a new course"""
     existing_course = coursesCrud.get_course_by_title(db, payload.title)
     if existing_course:
@@ -33,7 +35,7 @@ def retrive_course(slug: str, db: Session = Depends(deps.get_db)):
 
 
 @router.patch("/courses/{slug}")
-def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.get_db)):
+def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_courses"))):
     """Update a course's information"""
     course = coursesCrud.update_course(db, slug, payload)
     if not course:
@@ -42,7 +44,7 @@ def update_course(slug: str, payload: UpdateCourse, db: Session = Depends(deps.g
 
 
 @router.delete("/courses/{slug}")
-def delete_course(slug: str, db: Session = Depends(deps.get_db)):
+def delete_course(slug: str, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_courses"))):
     """Delete a course"""
     result = coursesCrud.delete_course(db, slug)
     if not result:

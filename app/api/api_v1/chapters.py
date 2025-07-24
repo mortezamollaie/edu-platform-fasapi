@@ -1,9 +1,11 @@
 from fastapi import APIRouter, status, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
+from app.models.user import User
 from app.schemas.learning import RetrieveChapter, CreateChapter, UpdateChapter, RetrieveLecture
 import app.crud.chapters as chaptersCrud
 from typing import List
+from app.dependencies import has_permission
 
 router = APIRouter()
 
@@ -14,7 +16,7 @@ def chapters(db: Session = Depends(deps.get_db)):
 
 
 @router.post("/chapters", response_model=RetrieveChapter, status_code=status.HTTP_201_CREATED, tags=["Chapters"])
-def create_chapter(payload: CreateChapter, db: Session = Depends(deps.get_db)):
+def create_chapter(payload: CreateChapter, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_chapters"))):
     """Create a new chapter"""
     chapter = chaptersCrud.create_chapter(db, payload)
     if not chapter:
@@ -32,7 +34,7 @@ def get_chapter(slug, db: Session = Depends(deps.get_db)):
 
 
 @router.patch("/chapters/{slug}", response_model=RetrieveChapter, status_code=status.HTTP_200_OK, tags=["Chapters"])
-def update_chapter(slug: str, payload: UpdateChapter, db: Session = Depends(deps.get_db)):
+def update_chapter(slug: str, payload: UpdateChapter, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_chapters"))):
     """Update a chapter's information"""
     chapter = chaptersCrud.update_chapter(db, slug, payload)
     if not chapter:
@@ -43,7 +45,7 @@ def update_chapter(slug: str, payload: UpdateChapter, db: Session = Depends(deps
 
 
 @router.delete("/chapters/{slug}", status_code=status.HTTP_200_OK, tags=["Chapters"])
-def delete_chapter(slug: str, db: Session = Depends(deps.get_db)):
+def delete_chapter(slug: str, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_chapters"))):
     """Delete a chapter"""
     result = chaptersCrud.delete_chapter(db, slug)
     if not result:

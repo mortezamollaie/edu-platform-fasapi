@@ -4,6 +4,8 @@ from app.api import deps
 from app.schemas.learning import CreateLecture, UpdateLecture, RetrieveLecture
 import app.crud.lectures as lecturesCrud
 from typing import List
+from app.dependencies import has_permission
+from app.models.user import User
 
 router = APIRouter()
 
@@ -21,7 +23,7 @@ def get_lecture(slug: str, db: Session = Depends(deps.get_db)):
     return lecture
 
 @router.post("/lectures", response_model=RetrieveLecture, status_code=status.HTTP_201_CREATED)
-def create_lecture(payload: CreateLecture, db: Session = Depends(deps.get_db)):
+def create_lecture(payload: CreateLecture, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_lectures"))):
     """Create a new lecture"""
     lecture = lecturesCrud.create_lecture(db, payload)
     if not lecture:
@@ -30,7 +32,7 @@ def create_lecture(payload: CreateLecture, db: Session = Depends(deps.get_db)):
 
 
 @router.patch("/lectures/{slug}", response_model=RetrieveLecture, status_code=status.HTTP_200_OK)
-def update_lecture(slug: str, payload: UpdateLecture, db: Session = Depends(deps.get_db)):
+def update_lecture(slug: str, payload: UpdateLecture, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_lectures"))):
     """Update a lecture's information"""
     lecture = lecturesCrud.update_lecture(db, slug, payload)
     if not lecture:
@@ -41,7 +43,7 @@ def update_lecture(slug: str, payload: UpdateLecture, db: Session = Depends(deps
 
 
 @router.delete("/lectures/{slug}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_lecture(slug: str, db: Session = Depends(deps.get_db)):
+def delete_lecture(slug: str, db: Session = Depends(deps.get_db), current_user: User = Depends(has_permission("manage_lectures"))):
     """Delete a lecture"""
     result = lecturesCrud.delete_lecture(db, slug)
     if not result:
