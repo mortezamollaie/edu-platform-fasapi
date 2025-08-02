@@ -29,8 +29,18 @@ def list_users(
     
     total = UserCrud.get_users_count(db)
     
+    # Convert User objects to UserListOut format
+    users_data = [
+        UserListOut(
+            id=user.id,
+            email=user.email,
+            username=user.username,
+            is_registered=user.is_registered
+        ) for user in users
+    ]
+    
     return UsersResponse(
-        users=users,
+        users=users_data,
         total=total,
         skip=skip,
         limit=limit

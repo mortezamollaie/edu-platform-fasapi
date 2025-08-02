@@ -35,7 +35,7 @@ def get_current_user(
         return user
     except JWTError:
         raise credentials_exception
-    
+
 
 def has_permission(permission_name: str):
     def permission_checker(

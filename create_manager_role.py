@@ -79,7 +79,8 @@ def create_default_permissions():
         "system_admin", 
         "manage_courses",
         "manage_chapters",
-        "manage_lectures"
+        "manage_lectures",
+        "view_courses"
     ]
     
     try:

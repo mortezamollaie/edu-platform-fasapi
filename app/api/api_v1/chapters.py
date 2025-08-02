@@ -52,6 +52,7 @@ def delete_chapter(slug: str, db: Session = Depends(deps.get_db), current_user: 
         raise HTTPException(status_code=404, detail="Chapter with this slug not found.")
     return {"message": "Chapter deleted successfully"}
 
+
 @router.get("/chapters/{slug}/lectures", response_model=List[RetrieveLecture], status_code=status.HTTP_200_OK, tags=["Lectures"])
 def get_chapter_lectures(slug: str, db: Session = Depends(deps.get_db)):
     """Get all lectures for a specific chapter"""
